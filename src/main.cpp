@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include <Bounce2.h>
+#include <MIDI.h>
+
+MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 #define SWITCH1_PIN 2
 #define SWITCH2_PIN 3
@@ -12,6 +15,8 @@ Bounce2::Button switch2;
 Bounce2::Button switch3;
 
 void setup() {
+    MIDI.begin(MIDI_CHANNEL_OMNI);
+
     switch1.attach(SWITCH1_PIN, INPUT_PULLUP);
     switch1.interval(SWITCH_INTERVAL);
     
@@ -22,18 +27,24 @@ void setup() {
     switch3.interval(SWITCH_INTERVAL);
 }
 
+void sendRealTimeMidi(midi::MidiType message){
+    // send real time messages to both ports
+    MIDI.sendRealTime(message);
+    usbMIDI.sendRealTime(message);
+}
+
 void loop() {
     switch1.update();
     switch2.update();
     switch3.update();
     
     if (switch1.fell()) {
-        usbMIDI.sendRealTime(usbMIDI.Start);
+        sendRealTimeMidi(midi::Start);
     }
     else if (switch2.fell()) {
-        usbMIDI.sendRealTime(usbMIDI.Stop);
+        sendRealTimeMidi(midi::Stop);
     } 
     else if (switch3.fell()) {
-        usbMIDI.sendRealTime(usbMIDI.Continue);
+        sendRealTimeMidi(midi::Continue);
     } 
 }
