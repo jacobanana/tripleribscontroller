@@ -5,8 +5,6 @@
 #define SWITCH2_PIN 3
 #define SWITCH3_PIN 0
 #define MIDI_TX_PIN 1
-#define MIDI_CHANNEL 1
-#define CC_NUMBER 20
 #define SWITCH_INTERVAL 10
 
 Bounce2::Button switch1;
