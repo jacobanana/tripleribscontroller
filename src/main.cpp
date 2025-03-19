@@ -15,6 +15,7 @@ Bounce2::Button switch1;
 Bounce2::Button switch2;
 Bounce2::Button switch3;
 bool ledState = 1;
+bool playingState = 0;
 
 void setup() {
     MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -45,7 +46,12 @@ void loop() {
     switch3.update();
     
     if (switch1.fell()) {
-        sendRealTimeMidi(midi::Start);
+        if(playingState){
+            sendRealTimeMidi(midi::Stop);
+        } else {
+            sendRealTimeMidi(midi::Start);
+        }
+        playingState = !playingState;
     }
     else if (switch2.fell()) {
         sendRealTimeMidi(midi::Stop);
