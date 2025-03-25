@@ -10,12 +10,14 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 #define MIDI_TX_PIN 1
 #define SWITCH_INTERVAL 10
 #define INTERNAL_LED 13
+#define MIDI_CHANNEL 10
 
 Bounce2::Button switch1;
 Bounce2::Button switch2;
 Bounce2::Button switch3;
-bool ledState = 1;
-bool playingState = 0;
+bool ledState = true;
+bool playingState = false;
+uint8_t program = 0;
 
 void setup() {
     MIDI.begin(MIDI_CHANNEL_OMNI);
@@ -40,6 +42,14 @@ void sendRealTimeMidi(midi::MidiType message){
     digitalWrite(INTERNAL_LED, ledState);
 }
 
+void sendProgramChange(int program){
+    MIDI.sendProgramChange(program, MIDI_CHANNEL);
+    usbMIDI.sendProgramChange(program, MIDI_CHANNEL);
+    sendRealTimeMidi(midi::Start);
+    sendRealTimeMidi(midi::Stop);
+    playingState = false;
+}
+
 void loop() {
     switch1.update();
     switch2.update();
@@ -54,9 +64,11 @@ void loop() {
         playingState = !playingState;
     }
     else if (switch2.fell()) {
-        sendRealTimeMidi(midi::Stop);
+        program = (program + 1) % 128;
+        sendProgramChange(program);
     } 
     else if (switch3.fell()) {
-        sendRealTimeMidi(midi::Continue);
+        program = (program - 1) % 128;
+        sendProgramChange(program);
     } 
 }
