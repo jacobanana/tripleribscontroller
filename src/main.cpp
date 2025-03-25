@@ -41,10 +41,13 @@ void sendRealTimeMidi(midi::MidiType message){
 
 void sendProgramChange(int program){
     playingState = false;
+    sendRealTimeMidi(midi::Stop);
     MIDI.sendProgramChange(program, MIDI_CHANNEL);
     usbMIDI.sendProgramChange(program, MIDI_CHANNEL);
+    delay(10);
     sendRealTimeMidi(midi::Start);
     sendRealTimeMidi(midi::Stop);
+
 }
 
 void loop() {
