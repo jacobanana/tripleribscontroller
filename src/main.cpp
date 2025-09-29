@@ -18,6 +18,10 @@ Bounce2::Button switch3;
 bool playingState = false;
 uint8_t program = 0;
 
+void switch_t_action();
+void switch_r_action();
+void switch_tr_action();
+
 void setup() {
     MIDI.begin(MIDI_CHANNEL_OMNI);
     pinMode(INTERNAL_LED, OUTPUT);
@@ -47,7 +51,6 @@ void sendProgramChange(int program){
     delay(10);
     sendRealTimeMidi(midi::Start);
     sendRealTimeMidi(midi::Stop);
-
 }
 
 void loop() {
@@ -56,21 +59,38 @@ void loop() {
     switch3.update();
     
     if (switch1.fell()) {
-        if(playingState){
-            sendRealTimeMidi(midi::Stop);
-        } else {
-            sendRealTimeMidi(midi::Start);
-        }
-        playingState = !playingState;
+        switch_t_action();
     }
     else if (switch2.fell()) {
-        program = (program + 1) % 128;
-        sendProgramChange(program);
+        switch_tr_action();
     } 
     else if (switch3.fell()) {
-        program = (program - 1) % 128;
-        sendProgramChange(program);
+        switch_r_action();
     } 
     digitalWrite(INTERNAL_LED, playingState);
 
+}
+
+
+void switch_t_action(){
+    // Toggle start/stop
+    if(playingState){
+        sendRealTimeMidi(midi::Stop);
+    } else {
+        sendRealTimeMidi(midi::Start);
+    }
+    playingState = !playingState;
+}
+
+void switch_tr_action(){
+    // Un-mute channels 4-5
+    MIDI.sendControlChange(94, 0, 4);
+    MIDI.sendControlChange(94, 0, 5);
+}
+
+
+void switch_r_action(){
+    // Mute channels 4-5
+    MIDI.sendControlChange(94, 1, 4);
+    MIDI.sendControlChange(94, 1, 5);
 }
