@@ -1,5 +1,5 @@
 [project]
-name = "midiutils"
+name = "midimonitor"
 version = "0.1.0"
 description = "Simple MIDI utilities"
 requires-python = ">=3.12"
